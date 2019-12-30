@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
+#include <utility>
 #include "application.h"
+#include "coordinate.h"
 using namespace std;
 
 int main(int argc, char** argv) 
