@@ -12,6 +12,14 @@ Coordinate::Coordinate()
     previous = NULL;
 }
 
+Coordinate::Coordinate(int cost, int first, int second)
+{
+    this->cost = cost;
+    this->position.first = first;
+    this->position.second = second;
+    this->previous = NULL;
+}
+
 int Coordinate::getCost()
 {
     return this->cost;

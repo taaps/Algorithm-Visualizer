@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <utility>
+#include <bits/stdc++.h>
 #include "application.h"
 #include "coordinate.h"
 using namespace std;
@@ -28,12 +28,44 @@ int main(int argc, char** argv)
     
     //Call Path-Finding Algorithm
     vector<pair<int,int>> path;
-    path = dijkstra(startIndex, endIndex);
+    path = dijkstra(grid, startIndex, endIndex);
     
     return 0;
 }
 
-vector<pair<int,int>> dijkstra(pair<int,int> start, pair<int,int> end)
+vector<pair<int,int>> dijkstra(vector<vector<pair<int, int>>> grid, pair<int,int> startIndex, pair<int,int> endIndex)
 {
+    Coordinate* initial = new Coordinate(0, startIndex.first, startIndex.second);
     
+    // Set up queue for starting index of the algorithm
+    priority_queue<pair<int,Coordinate*>> queue;
+    queue.push(make_pair(initial->getCost(), initial));
+    
+    while(!queue.empty())
+    {
+        pair<int,Coordinate*> poppedItem;
+        poppedItem = queue.top();
+        queue.pop();
+        
+        int cost = poppedItem.first;
+        Coordinate* currentIndex = poppedItem.second;
+        
+        // If the end index is found
+        if(currentIndex->getPosition().first == endIndex.first && 
+                currentIndex->getPosition().second == endIndex.second)
+        {
+            
+        }
+        else
+        {
+            
+        }
+    }
+    
+    return createPath();
+}
+
+vector<pair<int,int>> createPath()
+{
+    ;
 }
