@@ -23,4 +23,3 @@ public:
 };
 
 #endif /* COORDINATE_H */
-
