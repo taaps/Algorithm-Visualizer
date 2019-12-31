@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <iterator>
+#include <algorithm>
 #include <bits/stdc++.h>
 #include "application.h"
 #include "coordinate.h"
@@ -107,5 +108,17 @@ bool checkInGrid(int sizeX, int sizeY, int x, int y)
 
 vector<pair<int,int>> createPath(Coordinate* finalPosition)
 {
-    ;
+    Coordinate* temp = finalPosition;
+    vector<pair<int,int>> path;
+    
+    while(temp != NULL)
+    {
+        pair<int,int> newEntry = temp->getPosition();
+        path.push_back(newEntry);
+        temp = temp->previous;
+    }
+    
+    reverse(path.begin(), path.end());
+    
+    return path;
 }
