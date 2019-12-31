@@ -33,6 +33,11 @@ int main(int argc, char** argv)
     vector<pair<int,int>> path;
     path = dijkstra(grid, startIndex, endIndex);
     
+    for(int i=0; i<path.size(); i++)
+    {
+        cout << "(" << path[i].first << "," << path[i].second << ")" << endl;
+    }
+    
     return 0;
 }
 
@@ -79,14 +84,18 @@ vector<pair<int,int>> dijkstra(vector<vector<pair<int, int>>> grid, pair<int,int
                 int nextPositionX = currentIndex->getPosition().first + (*listItr).first;
                 int nextPositionY = currentIndex->getPosition().second + (*listItr).second;
                 
+                int newCost = -currentIndex->getCost() + 1;
+                
                 // If next position is in the grid and it has not been visited before
                 if(checkInGrid(grid.size(), grid[0].size(), nextPositionX, nextPositionY) && !visitedGrid[nextPositionX][nextPositionY])
                 {
-                    int newCost = currentIndex->getCost() + 1;
                     Coordinate* temp = new Coordinate(newCost, nextPositionX, nextPositionY);
+                    temp->previous = currentIndex;
                     
-                    queue.push(make_pair(newCost, temp));
+                    queue.push(make_pair(-newCost, temp));
                 }
+                
+                //Need to implement functionality for if the cost of current is less or more than previous if node has already been visited
                 
                 visitedGrid[currentIndex->getPosition().first][currentIndex->getPosition().second] = true;   
             }
