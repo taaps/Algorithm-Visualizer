@@ -16,6 +16,7 @@ public:
     
     Coordinate();
     Coordinate(int cost, int first, int second);
+    ~Coordinate();
     int getCost();
     void setCost(int cost);
     pair<int,int> getPosition();

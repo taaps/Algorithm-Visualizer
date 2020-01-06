@@ -20,6 +20,11 @@ Coordinate::Coordinate(int cost, int first, int second)
     this->previous = NULL;
 }
 
+Coordinate::~Coordinate()
+{
+    this->previous = NULL;
+}
+
 int Coordinate::getCost()
 {
     return this->cost;

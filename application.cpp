@@ -146,4 +146,16 @@ vector<pair<int,int>> createPath(Coordinate* finalPosition)
 
 void freeCoordinateGrid(vector<vector<Coordinate*>> grid, int gridRowSize, int gridColSize)
 {
+    for (int i=0; i<gridRowSize; i++)
+    {
+        for(int j=0; j<gridColSize; j++)
+        {
+            Coordinate* temp = grid[i][j];
+            
+            if(temp != NULL)
+            {
+                free(temp);
+            }
+        }
+    }
 }
