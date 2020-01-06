@@ -4,6 +4,7 @@
 #include <iterator>
 #include <algorithm>
 #include <bits/stdc++.h>
+#include <limits>
 #include "application.h"
 #include "coordinate.h"
 using namespace std;
@@ -47,20 +48,20 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
     vector<vector<bool>> visitedGrid(50, tempVisitedRow);
     
     // Cost to travel to a node
-    vector<int> tempCostRow(50, INT_MAX);
-    vector<vector<int>> calculatedCostGrid(50, tempCostRow);
+    vector<double> tempCostRow(50, numeric_limits<double>::max());
+    vector<vector<double>> calculatedCostGrid(50, tempCostRow);
     
     // Set up queue for starting index of the algorithm
-    priority_queue<pair<int,Coordinate*>> queue;
+    priority_queue<pair<double,Coordinate*>> queue;
     queue.push(make_pair(initialPosition->getCost(), initialPosition));
     
     while(!queue.empty())
     {
-        pair<int,Coordinate*> poppedItem;
+        pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
         
-        int cost = poppedItem.first;
+        double cost = poppedItem.first;
         Coordinate* currentIndex = poppedItem.second;
         
         // If the end index is found
@@ -80,7 +81,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    int newCost = -currentIndex->getCost() + 1;
+                    double newCost = -currentIndex->getCost() + 1;
                     bool visited = visitedGrid[nextPositionX][nextPositionY];
 
                     if(!visited)
@@ -116,6 +117,12 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
     }
     
     return createPath(finalPosition);
+}
+
+vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
+        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
+{
+    
 }
 
 bool checkInGrid(int sizeX, int sizeY, int x, int y)

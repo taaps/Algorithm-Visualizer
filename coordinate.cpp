@@ -25,12 +25,12 @@ Coordinate::~Coordinate()
     this->previous = NULL;
 }
 
-int Coordinate::getCost()
+double Coordinate::getCost()
 {
     return this->cost;
 }
 
-void Coordinate::setCost(int cost)
+void Coordinate::setCost(double cost)
 {
     this->cost = cost;
 }

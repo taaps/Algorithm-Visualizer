@@ -8,7 +8,7 @@ using namespace std;
 class Coordinate
 {
 private:
-    int cost;
+    double cost;
     pair<int,int> position;
     
 public:
@@ -17,8 +17,8 @@ public:
     Coordinate();
     Coordinate(int cost, int first, int second);
     ~Coordinate();
-    int getCost();
-    void setCost(int cost);
+    double getCost();
+    void setCost(double cost);
     pair<int,int> getPosition();
     void setPosition(int first, int second);
 };
