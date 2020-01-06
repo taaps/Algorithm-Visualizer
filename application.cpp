@@ -24,17 +24,25 @@ int main(int argc, char** argv)
     pair<int, int> startIndex(0, 0);
     pair<int, int> endIndex(0, 3);
     
+    for(int i=0; i<50; i++)
+    {
+        for(int j=0; j<50; j++)
+        {
+            costGrid[i][j] = 1;
+        }
+    }
+    
     //Call Path-Finding Algorithm
     vector<pair<int,int>> pathDijkstra;
     vector<pair<int,int>> pathAStar;
-    pathDijkstra = dijkstra(grid, gridRowSize, gridColSize, startIndex, endIndex);
+    pathDijkstra = dijkstra(grid, costGrid, gridRowSize, gridColSize, startIndex, endIndex);
     pathAStar = astar(grid, gridRowSize, gridColSize, startIndex, endIndex);
     
     return 0;
 }
 
-vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize, 
-        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
+vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<double>> costGrid, 
+        int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition;
@@ -85,7 +93,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = currentIndex->getCost() + 1;
+                    double newCost = currentIndex->getCost() + costGrid[nextPositionX][nextPositionY];
                     bool visited = visitedGrid[nextPositionX][nextPositionY];
 
                     if(!visited)

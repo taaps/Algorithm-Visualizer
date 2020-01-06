@@ -7,8 +7,8 @@
 using namespace std;
 
 // Function Declarations
-vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize, 
-        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex);
+vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<double>> costGrid, 
+        int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex);
 vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex);
 bool checkInGrid(int gridX, int gridY, int x, int y);
