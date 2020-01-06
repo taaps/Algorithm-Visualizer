@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <bits/stdc++.h>
 #include <limits>
+#include <cmath>
 #include "application.h"
 #include "coordinate.h"
 using namespace std;
@@ -17,11 +18,12 @@ int main(int argc, char** argv)
     int gridColSize = 50;
     
     pair<int, int> startIndex(0, 0);
-    pair<int, int> endIndex(2, 3);
+    pair<int, int> endIndex(1, 3);
     
     //Call Path-Finding Algorithm
     vector<pair<int,int>> path;
-    path = dijkstra(grid, gridRowSize, gridColSize, startIndex, endIndex);
+    //path = dijkstra(grid, gridRowSize, gridColSize, startIndex, endIndex);
+    path = astar(grid, gridRowSize, gridColSize, startIndex, endIndex);
     
     for(int i=0; i<path.size(); i++)
     {
@@ -86,7 +88,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
 
                     if(!visited)
                     {
-                        if(newCost <= calculatedCostGrid[nextPositionX][nextPositionY])
+                        if(newCost < calculatedCostGrid[nextPositionX][nextPositionY])
                         {
                             Coordinate* node;
                             
@@ -122,7 +124,88 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
 vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
+    Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
+    Coordinate* finalPosition;
     
+    list<pair<int,int>> traversals;
+    traversals.push_back(make_pair(-1,0));
+    traversals.push_back(make_pair(0,1));
+    traversals.push_back(make_pair(1,0));
+    traversals.push_back(make_pair(0,-1));
+    
+    // Visited grid
+    vector<bool> tempVisitedRow(50, false);
+    vector<vector<bool>> visitedGrid(50, tempVisitedRow);
+    
+    // Cost to travel to a node
+    vector<double> tempCostRow(50, numeric_limits<double>::max());
+    vector<vector<double>> calculatedCostGrid(50, tempCostRow);
+    
+    // Set up queue for starting index of the algorithm
+    priority_queue<pair<double,Coordinate*>> queue;
+    queue.push(make_pair(initialPosition->getCost(), initialPosition));
+    
+    while(!queue.empty())
+    {
+        pair<double,Coordinate*> poppedItem;
+        poppedItem = queue.top();
+        queue.pop();
+        
+        Coordinate* currentIndex = poppedItem.second;
+        
+        // If the end index is found
+        if(currentIndex->getPosition().first == endIndex.first && 
+                currentIndex->getPosition().second == endIndex.second)
+        {
+            finalPosition = currentIndex;
+            break;
+        }
+        else
+        {
+            list<pair<int,int>>::iterator listItr;
+            for(listItr = traversals.begin(); listItr != traversals.end(); listItr++)
+            {
+                int nextPositionX = currentIndex->getPosition().first + (*listItr).first;
+                int nextPositionY = currentIndex->getPosition().second + (*listItr).second;
+                
+                if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
+                {
+                    double newCost = -currentIndex->getCost() + 1 + heuristic(currentIndex->getPosition(), endIndex);
+                    bool visited = visitedGrid[nextPositionX][nextPositionY];
+
+                    if(!visited)
+                    {
+                        if(newCost < calculatedCostGrid[nextPositionX][nextPositionY])
+                        {
+                            Coordinate* node;
+                            
+                            if(grid[nextPositionX][nextPositionY] != NULL)
+                            {
+                                node = grid[nextPositionX][nextPositionY];
+                                node->previous = currentIndex;
+                                node->setCost(newCost);
+                                
+                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                            }
+                            else
+                            {
+                                node = new Coordinate(newCost, nextPositionX, nextPositionY);
+                                node->previous = currentIndex;
+                                
+                                grid[nextPositionX][nextPositionY] = node;
+                                visitedGrid[nextPositionX][nextPositionY] = true;   
+                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                            }
+                            
+                            queue.push(make_pair(-node->getCost(), node));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    return createPath(finalPosition);
 }
 
 bool checkInGrid(int sizeX, int sizeY, int x, int y)
@@ -165,4 +248,9 @@ void freeCoordinateGrid(vector<vector<Coordinate*>> grid, int gridRowSize, int g
             }
         }
     }
+}
+
+double heuristic(pair<int,int> currentIndex, pair<int,int> finalIndex)
+{
+    return sqrt((finalIndex.second-currentIndex.second)^2 + (finalIndex.first-currentIndex.first)^2);
 }
