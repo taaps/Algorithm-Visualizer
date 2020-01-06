@@ -21,14 +21,10 @@ int main(int argc, char** argv)
     pair<int, int> endIndex(0, 3);
     
     //Call Path-Finding Algorithm
-    vector<pair<int,int>> path;
-    //path = dijkstra(grid, gridRowSize, gridColSize, startIndex, endIndex);
-    path = astar(grid, gridRowSize, gridColSize, startIndex, endIndex);
-    
-    for(int i=0; i<path.size(); i++)
-    {
-        cout << "(" << path[i].first << "," << path[i].second << ")" << endl;
-    }
+    vector<pair<int,int>> pathDijkstra;
+    vector<pair<int,int>> pathAStar;
+    pathDijkstra = dijkstra(grid, gridRowSize, gridColSize, startIndex, endIndex);
+    pathAStar = astar(grid, gridRowSize, gridColSize, startIndex, endIndex);
     
     return 0;
 }
@@ -36,7 +32,6 @@ int main(int argc, char** argv)
 vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize, 
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
-    int nodesChecked = 0;
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition;
     
@@ -62,7 +57,6 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
     
     while(!queue.empty())
     {
-        nodesChecked++;
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
@@ -121,14 +115,13 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
             }
         }
     }
-    cout << nodesChecked << endl;
+
     return createPath(finalPosition);
 }
 
 vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
-    int nodesChecked = 0;
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition;
     
@@ -154,7 +147,6 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
     
     while(!queue.empty())
     {
-        nodesChecked++;
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
@@ -212,16 +204,6 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
                 }
             }
         }
-    }
-    cout << nodesChecked << endl;
-    
-    for(int i=0; i<4; i++)
-    {
-        for(int j=0; j<3; j++)
-        {
-            cout << calculatedCostGrid[i][j] << " ";
-        }
-        cout << endl;
     }
     
     return createPath(finalPosition);
