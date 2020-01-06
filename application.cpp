@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     int gridColSize = 50;
     
     pair<int, int> startIndex(0, 0);
-    pair<int, int> endIndex(1, 3);
+    pair<int, int> endIndex(0, 3);
     
     //Call Path-Finding Algorithm
     vector<pair<int,int>> path;
@@ -36,6 +36,7 @@ int main(int argc, char** argv)
 vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize, 
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
+    int nodesChecked = 0;
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition;
     
@@ -56,9 +57,12 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
     // Set up queue for starting index of the algorithm
     priority_queue<pair<double,Coordinate*>> queue;
     queue.push(make_pair(initialPosition->getCost(), initialPosition));
+    visitedGrid[startIndex.first][startIndex.second] = true;
+    calculatedCostGrid[startIndex.first][startIndex.second] = 0;
     
     while(!queue.empty())
     {
+        nodesChecked++;
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
@@ -83,7 +87,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = -currentIndex->getCost() + 1;
+                    double newCost = currentIndex->getCost() + 1;
                     bool visited = visitedGrid[nextPositionX][nextPositionY];
 
                     if(!visited)
@@ -117,13 +121,14 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize
             }
         }
     }
-    
+    cout << nodesChecked << endl;
     return createPath(finalPosition);
 }
 
 vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
+    int nodesChecked = 0;
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition;
     
@@ -144,13 +149,17 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
     // Set up queue for starting index of the algorithm
     priority_queue<pair<double,Coordinate*>> queue;
     queue.push(make_pair(initialPosition->getCost(), initialPosition));
+    visitedGrid[startIndex.first][startIndex.second] = true;
+    calculatedCostGrid[startIndex.first][startIndex.second] = 0;
     
     while(!queue.empty())
     {
+        nodesChecked++;
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
         
+        double cost = poppedItem.first;
         Coordinate* currentIndex = poppedItem.second;
         
         // If the end index is found
@@ -170,7 +179,7 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = -currentIndex->getCost() + 1 + heuristic(currentIndex->getPosition(), endIndex);
+                    double newCost = currentIndex->getCost() + heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
                     bool visited = visitedGrid[nextPositionX][nextPositionY];
 
                     if(!visited)
@@ -203,6 +212,16 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
                 }
             }
         }
+    }
+    cout << nodesChecked << endl;
+    
+    for(int i=0; i<4; i++)
+    {
+        for(int j=0; j<3; j++)
+        {
+            cout << calculatedCostGrid[i][j] << " ";
+        }
+        cout << endl;
     }
     
     return createPath(finalPosition);
@@ -252,5 +271,6 @@ void freeCoordinateGrid(vector<vector<Coordinate*>> grid, int gridRowSize, int g
 
 double heuristic(pair<int,int> currentIndex, pair<int,int> finalIndex)
 {
-    return sqrt((finalIndex.second-currentIndex.second)^2 + (finalIndex.first-currentIndex.first)^2);
+    return sqrt((finalIndex.second-currentIndex.second)*(finalIndex.second-currentIndex.second)
+            + (finalIndex.first-currentIndex.first)*(finalIndex.first-currentIndex.first));
 }
