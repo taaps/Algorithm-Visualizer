@@ -6,10 +6,10 @@ using namespace std;
 
 Coordinate::Coordinate()
 {
-    cost = 0;
-    position.first = -1;
-    position.second = -1;
-    previous = NULL;
+    this->cost = 0;
+    this->position.first = -1;
+    this->position.second = -1;
+    this->previous = NULL;
 }
 
 Coordinate::Coordinate(int cost, int first, int second)
