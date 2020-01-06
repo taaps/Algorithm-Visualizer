@@ -14,6 +14,10 @@ int main(int argc, char** argv)
 {
     vector<Coordinate*> tempRow(50, NULL);
     vector<vector<Coordinate*>> grid(50, tempRow);
+    
+    vector<double> tempCostRow(50, 1);
+    vector<vector<double>> costGrid(50, tempCostRow);
+    
     int gridRowSize = 50;
     int gridColSize = 50;
     
