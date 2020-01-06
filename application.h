@@ -7,8 +7,10 @@
 using namespace std;
 
 // Function Declarations
-vector<pair<int,int>> dijkstra(vector<vector<pair<int, int>>> grid, pair<int,int> start, pair<int,int> end);
+vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize, 
+        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex);
 bool checkInGrid(int gridX, int gridY, int x, int y);
 vector<pair<int,int>> createPath(Coordinate* finalPosition);
+void freeCoordinateGrid(vector<vector<Coordinate*>> grid, int gridRowSize, int gridColSize);
 
 #endif /* MAIN_H */

@@ -10,28 +10,17 @@ using namespace std;
 
 int main(int argc, char** argv) 
 {
-    pair<int, int> tempValue;
-    tempValue.first = 0;
-    tempValue.second = 0;
-    
-    vector<pair<int, int>> tempRow(50, tempValue);
-    vector<vector<pair<int, int>>> grid(50, tempRow);
-    
-    for(int i=0; i<50; i++)
-    {
-        for(int j=0; j<50; j++)
-        {
-            grid[i][j].first = i;
-            grid[i][j].second = j;
-        }
-    }
+    vector<Coordinate*> tempRow(50, NULL);
+    vector<vector<Coordinate*>> grid(50, tempRow);
+    int gridRowSize = 50;
+    int gridColSize = 50;
     
     pair<int, int> startIndex(0, 0);
-    pair<int, int> endIndex(4, 0);
+    pair<int, int> endIndex(2, 3);
     
     //Call Path-Finding Algorithm
     vector<pair<int,int>> path;
-    path = dijkstra(grid, startIndex, endIndex);
+    path = dijkstra(grid, gridRowSize, gridColSize, startIndex, endIndex);
     
     for(int i=0; i<path.size(); i++)
     {
@@ -41,7 +30,8 @@ int main(int argc, char** argv)
     return 0;
 }
 
-vector<pair<int,int>> dijkstra(vector<vector<pair<int, int>>> grid, pair<int,int> startIndex, pair<int,int> endIndex)
+vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, int gridRowSize, 
+        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition;
@@ -53,8 +43,12 @@ vector<pair<int,int>> dijkstra(vector<vector<pair<int, int>>> grid, pair<int,int
     traversals.push_back(make_pair(0,-1));
     
     // Visited grid
-    vector<bool> tempRow(50, false);
-    vector<vector<bool>> visitedGrid(50, tempRow);
+    vector<bool> tempVisitedRow(50, false);
+    vector<vector<bool>> visitedGrid(50, tempVisitedRow);
+    
+    // Cost to travel to a node
+    vector<int> tempCostRow(50, INT_MAX);
+    vector<vector<int>> calculatedCostGrid(50, tempCostRow);
     
     // Set up queue for starting index of the algorithm
     priority_queue<pair<int,Coordinate*>> queue;
@@ -84,20 +78,39 @@ vector<pair<int,int>> dijkstra(vector<vector<pair<int, int>>> grid, pair<int,int
                 int nextPositionX = currentIndex->getPosition().first + (*listItr).first;
                 int nextPositionY = currentIndex->getPosition().second + (*listItr).second;
                 
-                int newCost = -currentIndex->getCost() + 1;
-                
-                // If next position is in the grid and it has not been visited before
-                if(checkInGrid(grid.size(), grid[0].size(), nextPositionX, nextPositionY) && !visitedGrid[nextPositionX][nextPositionY])
+                if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    Coordinate* temp = new Coordinate(newCost, nextPositionX, nextPositionY);
-                    temp->previous = currentIndex;
-                    
-                    queue.push(make_pair(-newCost, temp));
+                    int newCost = -currentIndex->getCost() + 1;
+                    bool visited = visitedGrid[nextPositionX][nextPositionY];
+
+                    if(!visited)
+                    {
+                        if(newCost <= calculatedCostGrid[nextPositionX][nextPositionY])
+                        {
+                            Coordinate* node;
+                            
+                            if(grid[nextPositionX][nextPositionY] != NULL)
+                            {
+                                node = grid[nextPositionX][nextPositionY];
+                                node->previous = currentIndex;
+                                node->setCost(newCost);
+                                
+                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                            }
+                            else
+                            {
+                                node = new Coordinate(newCost, nextPositionX, nextPositionY);
+                                node->previous = currentIndex;
+                                
+                                grid[nextPositionX][nextPositionY] = node;
+                                visitedGrid[nextPositionX][nextPositionY] = true;   
+                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                            }
+                            
+                            queue.push(make_pair(-node->getCost(), node));
+                        }
+                    }
                 }
-                
-                //Need to implement functionality for if the cost of current is less or more than previous if node has already been visited
-                
-                visitedGrid[currentIndex->getPosition().first][currentIndex->getPosition().second] = true;   
             }
         }
     }
@@ -128,6 +141,9 @@ vector<pair<int,int>> createPath(Coordinate* finalPosition)
     }
     
     reverse(path.begin(), path.end());
-    
     return path;
+}
+
+void freeCoordinateGrid(vector<vector<Coordinate*>> grid, int gridRowSize, int gridColSize)
+{
 }
