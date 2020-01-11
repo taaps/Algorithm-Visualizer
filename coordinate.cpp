@@ -12,7 +12,7 @@ Coordinate::Coordinate()
     this->previous = NULL;
 }
 
-Coordinate::Coordinate(int cost, int first, int second)
+Coordinate::Coordinate(double cost, int first, int second)
 {
     this->cost = cost;
     this->position.first = first;

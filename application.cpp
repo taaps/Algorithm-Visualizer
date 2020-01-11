@@ -3,7 +3,8 @@
 #include <list>
 #include <iterator>
 #include <algorithm>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <queue>
 #include <limits>
 #include <cmath>
 #include "application.h"
@@ -45,7 +46,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
         int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
-    Coordinate* finalPosition;
+    Coordinate* finalPosition = NULL;
     
     list<pair<int,int>> traversals;
     traversals.push_back(make_pair(-1,0));
@@ -135,7 +136,7 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
-    Coordinate* finalPosition;
+    Coordinate* finalPosition = NULL;
     
     list<pair<int,int>> traversals;
     traversals.push_back(make_pair(-1,0));
