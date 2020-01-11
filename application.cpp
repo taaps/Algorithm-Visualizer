@@ -12,9 +12,9 @@
 
 using namespace std;
 
-const int GRID_CELL_SIZE = 16;
-const int GRID_WIDTH = 40;
-const int GRID_HEIGHT = 40;
+const int GRID_CELL_SIZE = 10;
+const int GRID_WIDTH = 75;
+const int GRID_HEIGHT = 75;
 
 // Added the plus one so window can hold the last grid line
 const int WINDOW_WIDTH = (GRID_WIDTH * GRID_CELL_SIZE) + 1;
@@ -43,21 +43,18 @@ int main(int argc, char* argv[])
     bool calledPathFinding = false;
 
     // Set up path finding variables
-    vector<Coordinate*> tempRow(50, NULL);
-    vector<vector<Coordinate*>> grid(50, tempRow);
+    vector<Coordinate*> tempRow(GRID_WIDTH, NULL);
+    vector<vector<Coordinate*>> grid(GRID_HEIGHT, tempRow);
 
-    vector<double> tempCostRow(50, 1);
-    vector<vector<double>> costGrid(50, tempCostRow);
+    vector<double> tempCostRow(GRID_WIDTH, 1);
+    vector<vector<double>> costGrid(GRID_HEIGHT, tempCostRow);
 
-    int gridRowSize = 50;
-    int gridColSize = 50;
+    pair<int, int> startIndex(4, 7);
+    pair<int, int> endIndex(34, 60);
 
-    pair<int, int> startIndex(10, 10);
-    pair<int, int> endIndex(25, 30);
-
-    for (int i = 0; i < 50; i++)
+    for (int i = 0; i < GRID_WIDTH; i++)
     {
-        for (int j = 0; j < 50; j++)
+        for (int j = 0; j < GRID_HEIGHT; j++)
         {
             costGrid[i][j] = 1;
         }
@@ -113,10 +110,9 @@ int main(int argc, char* argv[])
 
         if (!calledPathFinding)
         {
-            vector<pair<int, int>> pathDijkstra;
-            pathDijkstra = dijkstra(grid, costGrid, gridRowSize, gridColSize, startIndex, endIndex, renderer);
-            //vector<pair<int, int>> pathAStar;
-            //pathAStar = astar(grid, gridRowSize, gridColSize, startIndex, endIndex, renderer);
+            vector<pair<int, int>> path;
+            //path = dijkstra(grid, costGrid, GRID_WIDTH, GRID_HEIGHT, startIndex, endIndex, renderer);
+            path = astar(grid, GRID_WIDTH, GRID_HEIGHT, startIndex, endIndex, renderer);
 
             grid_visited.x = endIndex.first * GRID_CELL_SIZE;
             grid_visited.y = endIndex.second * GRID_CELL_SIZE;
@@ -125,11 +121,11 @@ int main(int argc, char* argv[])
             SDL_RenderPresent(renderer);
 
             // Draw the path found
-            for (int i = 1; i < pathDijkstra.size()-1; i++)
+            for (int i = 1; i < path.size()-1; i++)
             {
                 // Draw final path nodes
-                grid_visited.x = pathDijkstra[i].first * GRID_CELL_SIZE;
-                grid_visited.y = pathDijkstra[i].second * GRID_CELL_SIZE;
+                grid_visited.x = path[i].first * GRID_CELL_SIZE;
+                grid_visited.y = path[i].second * GRID_CELL_SIZE;
                 SDL_SetRenderDrawColor(renderer, final_path_colour.r, final_path_colour.g, final_path_colour.b, final_path_colour.a);
                 SDL_RenderFillRect(renderer, &grid_visited);
 
@@ -165,13 +161,13 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
     traversals.push_back(make_pair(-1,0));
     
     // Visited grid
-    vector<bool> tempVisitedRow(50, false);
-    vector<vector<bool>> visitedGrid(50, tempVisitedRow);
+    vector<bool> tempVisitedRow(GRID_WIDTH, false);
+    vector<vector<bool>> visitedGrid(GRID_HEIGHT, tempVisitedRow);
     bool initialNode = false;
     
     // Cost to travel to a node
-    vector<double> tempCostRow(50, numeric_limits<double>::max());
-    vector<vector<double>> calculatedCostGrid(50, tempCostRow);
+    vector<double> tempCostRow(GRID_WIDTH, numeric_limits<double>::max());
+    vector<vector<double>> calculatedCostGrid(GRID_HEIGHT, tempCostRow);
     
     // Set up queue for starting index of the algorithm
     priority_queue<pair<double,Coordinate*>> queue;
@@ -181,7 +177,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
     
     while(!queue.empty())
     {
-        SDL_Delay(10);
+        SDL_Delay(5);
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
@@ -256,14 +252,14 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
     return createPath(finalPosition);
 }
 
-vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
+vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
         int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition = NULL;
 
     // Window screen variables
-    SDL_Color grid_visited_colour = { 0, 0, 0, 255 }; // Black
+    SDL_Color grid_visited_colour = { 0, 128, 255, 255 }; // Blue
     SDL_Rect grid_visited = { -1, -1, GRID_CELL_SIZE, GRID_CELL_SIZE };
     
     list<pair<int,int>> traversals;
@@ -273,12 +269,13 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
     traversals.push_back(make_pair(0,-1));
     
     // Visited grid
-    vector<bool> tempVisitedRow(50, false);
-    vector<vector<bool>> visitedGrid(50, tempVisitedRow);
+    vector<bool> tempVisitedRow(GRID_WIDTH, false);
+    vector<vector<bool>> visitedGrid(GRID_HEIGHT, tempVisitedRow);
+    bool initialNode = false;
     
     // Cost to travel to a node
-    vector<double> tempCostRow(50, numeric_limits<double>::max());
-    vector<vector<double>> calculatedCostGrid(50, tempCostRow);
+    vector<double> tempCostRow(GRID_WIDTH, numeric_limits<double>::max());
+    vector<vector<double>> calculatedCostGrid(GRID_HEIGHT, tempCostRow);
     
     // Set up queue for starting index of the algorithm
     priority_queue<pair<double,Coordinate*>> queue;
@@ -293,12 +290,17 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
         poppedItem = queue.top();
         queue.pop();
 
-        // Draw visited nodes
-        grid_visited.x = poppedItem.second->getPosition().first * GRID_CELL_SIZE;
-        grid_visited.y = poppedItem.second->getPosition().second * GRID_CELL_SIZE;
-        SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
-        SDL_RenderFillRect(renderer, &grid_visited);
-        SDL_RenderPresent(renderer);
+        if (initialNode)
+        {
+            // Draw visited nodes
+            grid_visited.x = poppedItem.second->getPosition().first * GRID_CELL_SIZE;
+            grid_visited.y = poppedItem.second->getPosition().second * GRID_CELL_SIZE;
+            SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+            SDL_RenderFillRect(renderer, &grid_visited);
+            SDL_RenderPresent(renderer);
+        }
+
+        initialNode = true;
         
         double cost = poppedItem.first;
         Coordinate* currentIndex = poppedItem.second;
@@ -320,7 +322,7 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = currentIndex->getCost() + 100*heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
+                    double newCost = heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
                     bool visited = visitedGrid[nextPositionX][nextPositionY];
 
                     if(!visited)
