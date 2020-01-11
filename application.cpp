@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     SDL_Color grid_visited_colour = { 0, 0, 0, 255 }; // Black
 
     // Set up drawing variables
-    SDL_Rect grid_visited = { 0, 0, GRID_CELL_SIZE, GRID_CELL_SIZE };
+    SDL_Rect grid_visited = { -1, -1, GRID_CELL_SIZE, GRID_CELL_SIZE };
     bool drawInitial = false;
     bool calledPathFinding = false;
 
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
     int gridColSize = 50;
 
     pair<int, int> startIndex(0, 0);
-    pair<int, int> endIndex(0, 3);
+    pair<int, int> endIndex(35, 5);
 
     for (int i = 0; i < 50; i++)
     {
@@ -83,15 +83,28 @@ int main(int argc, char* argv[])
 
         if (!drawInitial)
         {
+            // Draw vertical lines
             for (int x = 0; x < 1 + GRID_WIDTH * GRID_CELL_SIZE; x += GRID_CELL_SIZE) 
             {
                 SDL_RenderDrawLine(renderer, x, 0, x, WINDOW_HEIGHT);
             }
 
+            // Draw horizontal lines
             for (int y = 0; y < 1 + GRID_WIDTH * GRID_CELL_SIZE; y += GRID_CELL_SIZE) 
             {
                 SDL_RenderDrawLine(renderer, 0, y, WINDOW_WIDTH, y);
             }
+
+            // Draw initial and final starting points
+            grid_visited.x = startIndex.first;
+            grid_visited.y = startIndex.second;
+            SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+            SDL_RenderFillRect(renderer, &grid_visited);
+
+            grid_visited.x = endIndex.first * GRID_CELL_SIZE;
+            grid_visited.y = endIndex.second * GRID_CELL_SIZE;
+            SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+            SDL_RenderFillRect(renderer, &grid_visited);
 
             SDL_RenderPresent(renderer);
             drawInitial = true;
@@ -101,6 +114,8 @@ int main(int argc, char* argv[])
         {
             vector<pair<int, int>> pathDijkstra;
             pathDijkstra = dijkstra(grid, costGrid, gridRowSize, gridColSize, startIndex, endIndex, renderer);
+            //vector<pair<int, int>> pathAStar;
+            //pathAStar = astar(grid, gridRowSize, gridColSize, startIndex, endIndex, renderer);
             calledPathFinding = true;
         }
     }
@@ -117,6 +132,10 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition = NULL;
+
+    // Window screen variables
+    SDL_Color grid_visited_colour = { 0, 0, 0, 255 }; // Black
+    SDL_Rect grid_visited = { -1, -1, GRID_CELL_SIZE, GRID_CELL_SIZE };
     
     list<pair<int,int>> traversals;
     traversals.push_back(make_pair(-1,0));
@@ -140,9 +159,17 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
     
     while(!queue.empty())
     {
+        SDL_Delay(10);
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
+
+        // Draw visited nodes
+        grid_visited.x = poppedItem.second->getPosition().first * GRID_CELL_SIZE;
+        grid_visited.y = poppedItem.second->getPosition().second * GRID_CELL_SIZE;
+        SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+        SDL_RenderFillRect(renderer, &grid_visited);
+        SDL_RenderPresent(renderer);
         
         double cost = poppedItem.first;
         Coordinate* currentIndex = poppedItem.second;
@@ -203,10 +230,14 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
 }
 
 vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize, 
-        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
+        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition = NULL;
+
+    // Window screen variables
+    SDL_Color grid_visited_colour = { 0, 0, 0, 255 }; // Black
+    SDL_Rect grid_visited = { -1, -1, GRID_CELL_SIZE, GRID_CELL_SIZE };
     
     list<pair<int,int>> traversals;
     traversals.push_back(make_pair(-1,0));
@@ -230,9 +261,17 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
     
     while(!queue.empty())
     {
+        SDL_Delay(10);
         pair<double,Coordinate*> poppedItem;
         poppedItem = queue.top();
         queue.pop();
+
+        // Draw visited nodes
+        grid_visited.x = poppedItem.second->getPosition().first * GRID_CELL_SIZE;
+        grid_visited.y = poppedItem.second->getPosition().second * GRID_CELL_SIZE;
+        SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+        SDL_RenderFillRect(renderer, &grid_visited);
+        SDL_RenderPresent(renderer);
         
         double cost = poppedItem.first;
         Coordinate* currentIndex = poppedItem.second;
@@ -254,7 +293,7 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = currentIndex->getCost() + heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
+                    double newCost = currentIndex->getCost() + 100*heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
                     bool visited = visitedGrid[nextPositionX][nextPositionY];
 
                     if(!visited)
