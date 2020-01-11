@@ -8,9 +8,9 @@
 #include <cmath>
 #include "application.h"
 #include "coordinate.h"
-using namespace std;
-
 #include <SDL.h> 
+
+using namespace std;
 
 const int GRID_CELL_SIZE = 16;
 const int GRID_WIDTH = 40;
@@ -39,6 +39,7 @@ int main(int argc, char* argv[])
     // Set up drawing variables
     SDL_Rect grid_visited = { 0, 0, GRID_CELL_SIZE, GRID_CELL_SIZE };
     bool drawInitial = false;
+    bool calledPathFinding = false;
 
     // Set up path finding variables
     vector<Coordinate*> tempRow(50, NULL);
@@ -95,6 +96,13 @@ int main(int argc, char* argv[])
             SDL_RenderPresent(renderer);
             drawInitial = true;
         }
+
+        if (!calledPathFinding)
+        {
+            vector<pair<int, int>> pathDijkstra;
+            pathDijkstra = dijkstra(grid, costGrid, gridRowSize, gridColSize, startIndex, endIndex, renderer);
+            calledPathFinding = true;
+        }
     }
 
     SDL_DestroyRenderer(renderer);
@@ -104,19 +112,8 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-
-    /*
-    //Call Path-Finding Algorithm
-    vector<pair<int,int>> pathDijkstra;
-    vector<pair<int,int>> pathAStar;
-    pathDijkstra = dijkstra(grid, costGrid, gridRowSize, gridColSize, startIndex, endIndex);
-    pathAStar = astar(grid, gridRowSize, gridColSize, startIndex, endIndex);
-    
-    return 0;
-    */
-
 vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<double>> costGrid, 
-        int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
+        int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition = NULL;
