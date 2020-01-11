@@ -3,7 +3,6 @@
 #include <list>
 #include <iterator>
 #include <algorithm>
-//#include <bits/stdc++.h>
 #include <queue>
 #include <limits>
 #include <cmath>
@@ -11,6 +10,90 @@
 #include "coordinate.h"
 using namespace std;
 
+#include <SDL.h> 
+
+const int GRID_CELL_SIZE = 16;
+const int GRID_WIDTH = 40;
+const int GRID_HEIGHT = 40;
+
+// Added the plus one so window can hold the last grid line
+const int WINDOW_WIDTH = (GRID_WIDTH * GRID_CELL_SIZE) + 1;
+const int WINDOW_HEIGHT = (GRID_HEIGHT * GRID_CELL_SIZE) + 1;
+
+int main(int argc, char* argv[])
+{
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    if (SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer) < 0)
+    {
+        return EXIT_FAILURE;
+    }
+
+    SDL_SetWindowTitle(window, "Algorithm Visualizer");
+
+    SDL_Event windowEvent;
+    SDL_Color grid_background = { 255, 255, 255, 255 }; // White
+    SDL_Color grid_line_color = { 0, 0, 0, 255 }; // Black
+    SDL_Color grid_visited_colour = { 0, 0, 0, 255 }; // Black
+
+    SDL_Rect grid_visited = { 0, 0, GRID_CELL_SIZE, GRID_CELL_SIZE };
+
+    bool drawInitial = false;
+
+    while (true)
+    {
+        // If the user requests for closing the window
+        if (SDL_PollEvent(&windowEvent))
+        {
+            if (SDL_QUIT == windowEvent.type)
+            {
+                break;
+            }
+        }
+
+        // Draw grid background.
+        SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
+        SDL_RenderClear(renderer);
+
+        // Draw grid lines.
+        SDL_SetRenderDrawColor(renderer, grid_line_color.r, grid_line_color.g, grid_line_color.b, grid_line_color.a);
+
+        if (!drawInitial)
+        {
+            for (int x = 0; x < 1 + GRID_WIDTH * GRID_CELL_SIZE;
+                x += GRID_CELL_SIZE) {
+                SDL_RenderDrawLine(renderer, x, 0, x, WINDOW_HEIGHT);
+                SDL_Delay(100);
+                SDL_RenderPresent(renderer);
+            }
+
+            for (int y = 0; y < 1 + GRID_WIDTH * GRID_CELL_SIZE;
+                y += GRID_CELL_SIZE) {
+                SDL_RenderDrawLine(renderer, 0, y, WINDOW_WIDTH, y);
+            }
+
+            SDL_RenderPresent(renderer);
+
+            SDL_Delay(1000);
+
+            // Draw a square
+            SDL_SetRenderDrawColor(renderer, grid_visited_colour.r,
+                grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+            SDL_RenderFillRect(renderer, &grid_visited);
+
+            SDL_RenderPresent(renderer);
+            drawInitial = true;
+        }
+    }
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return EXIT_SUCCESS;
+}
+
+/*
 int main(int argc, char** argv) 
 {
     vector<Coordinate*> tempRow(50, NULL);
@@ -41,6 +124,8 @@ int main(int argc, char** argv)
     
     return 0;
 }
+
+*/
 
 vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<double>> costGrid, 
         int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
