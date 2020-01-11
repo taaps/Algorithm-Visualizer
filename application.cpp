@@ -36,10 +36,32 @@ int main(int argc, char* argv[])
     SDL_Color grid_line_color = { 0, 0, 0, 255 }; // Black
     SDL_Color grid_visited_colour = { 0, 0, 0, 255 }; // Black
 
+    // Set up drawing variables
     SDL_Rect grid_visited = { 0, 0, GRID_CELL_SIZE, GRID_CELL_SIZE };
-
     bool drawInitial = false;
 
+    // Set up path finding variables
+    vector<Coordinate*> tempRow(50, NULL);
+    vector<vector<Coordinate*>> grid(50, tempRow);
+
+    vector<double> tempCostRow(50, 1);
+    vector<vector<double>> costGrid(50, tempCostRow);
+
+    int gridRowSize = 50;
+    int gridColSize = 50;
+
+    pair<int, int> startIndex(0, 0);
+    pair<int, int> endIndex(0, 3);
+
+    for (int i = 0; i < 50; i++)
+    {
+        for (int j = 0; j < 50; j++)
+        {
+            costGrid[i][j] = 1;
+        }
+    }
+
+    // Window will keep running unitl the user closes it
     while (true)
     {
         // If the user requests for closing the window
@@ -51,35 +73,24 @@ int main(int argc, char* argv[])
             }
         }
 
-        // Draw grid background.
+        // Draw grid background
         SDL_SetRenderDrawColor(renderer, grid_background.r, grid_background.g, grid_background.b, grid_background.a);
         SDL_RenderClear(renderer);
 
-        // Draw grid lines.
+        // Draw grid lines
         SDL_SetRenderDrawColor(renderer, grid_line_color.r, grid_line_color.g, grid_line_color.b, grid_line_color.a);
 
         if (!drawInitial)
         {
-            for (int x = 0; x < 1 + GRID_WIDTH * GRID_CELL_SIZE;
-                x += GRID_CELL_SIZE) {
+            for (int x = 0; x < 1 + GRID_WIDTH * GRID_CELL_SIZE; x += GRID_CELL_SIZE) 
+            {
                 SDL_RenderDrawLine(renderer, x, 0, x, WINDOW_HEIGHT);
-                SDL_Delay(100);
-                SDL_RenderPresent(renderer);
             }
 
-            for (int y = 0; y < 1 + GRID_WIDTH * GRID_CELL_SIZE;
-                y += GRID_CELL_SIZE) {
+            for (int y = 0; y < 1 + GRID_WIDTH * GRID_CELL_SIZE; y += GRID_CELL_SIZE) 
+            {
                 SDL_RenderDrawLine(renderer, 0, y, WINDOW_WIDTH, y);
             }
-
-            SDL_RenderPresent(renderer);
-
-            SDL_Delay(1000);
-
-            // Draw a square
-            SDL_SetRenderDrawColor(renderer, grid_visited_colour.r,
-                grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
-            SDL_RenderFillRect(renderer, &grid_visited);
 
             SDL_RenderPresent(renderer);
             drawInitial = true;
@@ -93,29 +104,8 @@ int main(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
-/*
-int main(int argc, char** argv) 
-{
-    vector<Coordinate*> tempRow(50, NULL);
-    vector<vector<Coordinate*>> grid(50, tempRow);
-    
-    vector<double> tempCostRow(50, 1);
-    vector<vector<double>> costGrid(50, tempCostRow);
-    
-    int gridRowSize = 50;
-    int gridColSize = 50;
-    
-    pair<int, int> startIndex(0, 0);
-    pair<int, int> endIndex(0, 3);
-    
-    for(int i=0; i<50; i++)
-    {
-        for(int j=0; j<50; j++)
-        {
-            costGrid[i][j] = 1;
-        }
-    }
-    
+
+    /*
     //Call Path-Finding Algorithm
     vector<pair<int,int>> pathDijkstra;
     vector<pair<int,int>> pathAStar;
@@ -123,9 +113,7 @@ int main(int argc, char** argv)
     pathAStar = astar(grid, gridRowSize, gridColSize, startIndex, endIndex);
     
     return 0;
-}
-
-*/
+    */
 
 vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<double>> costGrid, 
         int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex)
