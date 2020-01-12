@@ -49,14 +49,18 @@ int main(int argc, char* argv[])
     vector<double> tempCostRow(GRID_WIDTH, 1);
     vector<vector<double>> costGrid(GRID_HEIGHT, tempCostRow);
 
-    pair<int, int> startIndex(4, 7);
-    pair<int, int> endIndex(34, 60);
+    pair<int, int> startIndex(0, 0);
+    pair<int, int> endIndex(74, 74);
 
-    for (int i = 0; i < GRID_WIDTH; i++)
+    // Set up blocks in the grid
+    vector<bool> tempBlockRow(GRID_WIDTH, true);
+    vector<vector<bool>> blockGrid(GRID_HEIGHT, tempBlockRow);
+
+    for (int i = 40; i < 41; i++)
     {
-        for (int j = 0; j < GRID_HEIGHT; j++)
+        for (int j = 20; j < 60; j++)
         {
-            costGrid[i][j] = 1;
+            blockGrid[i][j] = false;
         }
     }
 
@@ -104,6 +108,21 @@ int main(int argc, char* argv[])
             SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
             SDL_RenderFillRect(renderer, &grid_visited);
 
+            // Draw blocks in the grid
+            for (int i = 0; i < GRID_WIDTH; i++)
+            {
+                for (int j = 0; j < GRID_HEIGHT; j++)
+                {
+                    if (!blockGrid[i][j])
+                    {
+                        grid_visited.x = i * GRID_CELL_SIZE;
+                        grid_visited.y = j * GRID_CELL_SIZE;
+                        SDL_SetRenderDrawColor(renderer, grid_visited_colour.r, grid_visited_colour.g, grid_visited_colour.b, grid_visited_colour.a);
+                        SDL_RenderFillRect(renderer, &grid_visited);
+                    }
+                }
+            }
+
             SDL_RenderPresent(renderer);
             drawInitial = true;
         }
@@ -111,8 +130,8 @@ int main(int argc, char* argv[])
         if (!calledPathFinding)
         {
             vector<pair<int, int>> path;
-            //path = dijkstra(grid, costGrid, GRID_WIDTH, GRID_HEIGHT, startIndex, endIndex, renderer);
-            path = astar(grid, GRID_WIDTH, GRID_HEIGHT, startIndex, endIndex, renderer);
+            //path = dijkstra(grid, costGrid, GRID_WIDTH, GRID_HEIGHT, startIndex, endIndex, renderer, blockGrid);
+            path = astar(grid, GRID_WIDTH, GRID_HEIGHT, startIndex, endIndex, renderer, blockGrid);
 
             grid_visited.x = endIndex.first * GRID_CELL_SIZE;
             grid_visited.y = endIndex.second * GRID_CELL_SIZE;
@@ -145,7 +164,7 @@ int main(int argc, char* argv[])
 }
 
 vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<double>> costGrid, 
-        int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer)
+        int gridRowSize, int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer, vector<vector<bool>> blockGrid)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition = NULL;
@@ -214,34 +233,37 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
                 
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = currentIndex->getCost() + costGrid[nextPositionX][nextPositionY];
-                    bool visited = visitedGrid[nextPositionX][nextPositionY];
-
-                    if(!visited)
+                    if (blockGrid[nextPositionX][nextPositionY])
                     {
-                        if(newCost < calculatedCostGrid[nextPositionX][nextPositionY])
+                        double newCost = currentIndex->getCost() + costGrid[nextPositionX][nextPositionY];
+                        bool visited = visitedGrid[nextPositionX][nextPositionY];
+
+                        if (!visited)
                         {
-                            Coordinate* node;
-                            
-                            if(grid[nextPositionX][nextPositionY] != NULL)
+                            if (newCost < calculatedCostGrid[nextPositionX][nextPositionY])
                             {
-                                node = grid[nextPositionX][nextPositionY];
-                                node->previous = currentIndex;
-                                node->setCost(newCost);
-                                
-                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                                Coordinate* node;
+
+                                if (grid[nextPositionX][nextPositionY] != NULL)
+                                {
+                                    node = grid[nextPositionX][nextPositionY];
+                                    node->previous = currentIndex;
+                                    node->setCost(newCost);
+
+                                    calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                                }
+                                else
+                                {
+                                    node = new Coordinate(newCost, nextPositionX, nextPositionY);
+                                    node->previous = currentIndex;
+
+                                    grid[nextPositionX][nextPositionY] = node;
+                                    visitedGrid[nextPositionX][nextPositionY] = true;
+                                    calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                                }
+
+                                queue.push(make_pair(-node->getCost(), node));
                             }
-                            else
-                            {
-                                node = new Coordinate(newCost, nextPositionX, nextPositionY);
-                                node->previous = currentIndex;
-                                
-                                grid[nextPositionX][nextPositionY] = node;
-                                visitedGrid[nextPositionX][nextPositionY] = true;   
-                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
-                            }
-                            
-                            queue.push(make_pair(-node->getCost(), node));
                         }
                     }
                 }
@@ -253,7 +275,7 @@ vector<pair<int,int>> dijkstra(vector<vector<Coordinate*>> grid, vector<vector<d
 }
 
 vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
-        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer)
+        int gridColSize, pair<int,int> startIndex, pair<int,int> endIndex, SDL_Renderer* renderer, vector<vector<bool>> blockGrid)
 {
     Coordinate* initialPosition = new Coordinate(0, startIndex.first, startIndex.second);
     Coordinate* finalPosition = NULL;
@@ -319,37 +341,40 @@ vector<pair<int,int>> astar(vector<vector<Coordinate*>> grid, int gridRowSize,
             {
                 int nextPositionX = currentIndex->getPosition().first + (*listItr).first;
                 int nextPositionY = currentIndex->getPosition().second + (*listItr).second;
-                
+
                 if(checkInGrid(gridRowSize, gridColSize, nextPositionX, nextPositionY))
                 {
-                    double newCost = heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
-                    bool visited = visitedGrid[nextPositionX][nextPositionY];
-
-                    if(!visited)
+                    if (blockGrid[nextPositionX][nextPositionY])
                     {
-                        if(newCost < calculatedCostGrid[nextPositionX][nextPositionY])
+                        double newCost = heuristic(make_pair(nextPositionX, nextPositionY), endIndex);
+                        bool visited = visitedGrid[nextPositionX][nextPositionY];
+
+                        if (!visited)
                         {
-                            Coordinate* node;
-                            
-                            if(grid[nextPositionX][nextPositionY] != NULL)
+                            if (newCost < calculatedCostGrid[nextPositionX][nextPositionY])
                             {
-                                node = grid[nextPositionX][nextPositionY];
-                                node->previous = currentIndex;
-                                node->setCost(newCost);
-                                
-                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                                Coordinate* node;
+
+                                if (grid[nextPositionX][nextPositionY] != NULL)
+                                {
+                                    node = grid[nextPositionX][nextPositionY];
+                                    node->previous = currentIndex;
+                                    node->setCost(newCost);
+
+                                    calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                                }
+                                else
+                                {
+                                    node = new Coordinate(newCost, nextPositionX, nextPositionY);
+                                    node->previous = currentIndex;
+
+                                    grid[nextPositionX][nextPositionY] = node;
+                                    visitedGrid[nextPositionX][nextPositionY] = true;
+                                    calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
+                                }
+
+                                queue.push(make_pair(-node->getCost(), node));
                             }
-                            else
-                            {
-                                node = new Coordinate(newCost, nextPositionX, nextPositionY);
-                                node->previous = currentIndex;
-                                
-                                grid[nextPositionX][nextPositionY] = node;
-                                visitedGrid[nextPositionX][nextPositionY] = true;   
-                                calculatedCostGrid[nextPositionX][nextPositionY] = newCost;
-                            }
-                            
-                            queue.push(make_pair(-node->getCost(), node));
                         }
                     }
                 }
